@@ -61,7 +61,7 @@ app.get(
 
 app.get('/login-error', (req, res) => res.send('Failed to login'))
 
-app.get('/profile', (req, res) => res.json(req.user))
+app.get('/profile', authenticated, (req, res) => res.json(req.user))
 
 app.get('/', authenticated, (req, res) => {
   return res.sendFile(path.join(__dirname, 'build', 'index.html'))
