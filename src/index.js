@@ -14,9 +14,8 @@ class App extends React.Component {
   componentDidMount() {
     return fetch('/profile')
       .then(response => {
-        if (response.status === 302) {
+        if (response.status === 401) {
           window.location.href = 'http://localhost:8080/auth/twitter'
-          return
         }
 
         return response
@@ -24,10 +23,10 @@ class App extends React.Component {
       .then(response => response.json())
       .then(user => this.setState({ user, loading: false }))
       .catch(error => {
-        console.error('ERROR', error)
+        console.log(error)
         this.setState({
           loading: false,
-          error: 'Something went wrong',
+          error: 'You are not logged in',
         })
       })
   }

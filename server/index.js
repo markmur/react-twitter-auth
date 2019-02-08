@@ -2,7 +2,6 @@ require('dotenv').config()
 
 const path = require('path')
 const express = require('express')
-const cors = require('cors')
 const passport = require('passport')
 const bodyParser = require('body-parser')
 const session = require('express-session')
@@ -28,8 +27,6 @@ passport.deserializeUser((user, done) => done(null, user))
 
 const app = express()
 
-app.use(cors())
-
 app.use(
   session({
     secret: 'you-should-probably-change-this',
@@ -40,8 +37,9 @@ app.use(
 
 const authenticated = (req, res, next) => {
   if (typeof req.user !== 'object') {
-    return res.status(302).json({
-      url: 'http://localhost:8080/auth/twitter',
+    req.session.redirectTo = req.headers.referer
+    return res.status(401).json({
+      url: `http://localhost:${port}/auth/twitter`,
     })
   }
 
@@ -57,10 +55,13 @@ app.get('/auth/twitter', passport.authenticate('twitter'))
 
 app.get(
   '/auth/twitter/callback',
-  passport.authenticate('twitter', { failureRedirect: '/login-error' }),
+  passport.authenticate('twitter', {
+    failureRedirect: '/login-error',
+  }),
   (req, res) => {
-    // Successful authentication, redirect
-    return res.redirect('http://localhost:3000')
+    const redirectTo = req.session.redirectTo || '/'
+    req.session.redirectTo = null
+    res.redirect(redirectTo)
   },
 )
 
