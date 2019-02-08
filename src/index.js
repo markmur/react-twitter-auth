@@ -13,10 +13,18 @@ class App extends React.Component {
 
   componentDidMount() {
     return fetch('/profile')
+      .then(response => {
+        if (response.status === 302) {
+          window.location.href = 'http://localhost:8080/auth/twitter'
+          return
+        }
+
+        return response
+      })
       .then(response => response.json())
       .then(user => this.setState({ user, loading: false }))
       .catch(error => {
-        console.error(error)
+        console.error('ERROR', error)
         this.setState({
           loading: false,
           error: 'Something went wrong',
